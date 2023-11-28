@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FunctionComponent } from "react";
 
 interface Props {
     title: string;
@@ -7,3 +7,7 @@ interface Props {
 export const Listings = ({ title }: Props) => {
     return <h2>{title}</h2>
 }
+
+// export const Listings2: FunctionComponent<Props> = ({ title }) => {
+//     return <h2>{title}</h2>
+// }
