@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import { server } from "../../lib/api";
 import {
   DeleteListingData,
@@ -36,6 +36,15 @@ interface Props {
 
 export const Listings = ({ title }: Props) => {
   const [listings, setListings] = useState<Listing[] | null>(null);
+
+  useEffect(() => {
+    fetchListings();
+    console.log('Effect run!')
+    // return () => {
+    //     console.log('Effect is cleaned up!')
+    // }
+
+  }, [])
 
   const fetchListings = async () => {
     const { data } = await server.fetch<ListingData>({ query: LISTINGS });
