@@ -1,18 +1,34 @@
 import React from "react";
 import { render } from "react-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
-import Listings from "./sections/Listings";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import "./styles/index.css";
+import { Listings, Home, Host, Listing, NotFound, User } from "./sections";
 
 const client = new ApolloClient({
   uri: "http://localhost:9000/api",
   cache: new InMemoryCache(),
 });
 
+const App = () => {
+  return (
+    <Router>
+      <Switch>
+        <Route exact path="/" component={Home} />
+        <Route exact path="/host" component={Host} />
+        <Route exact path="/listing/:id" component={Listing} />
+        <Route exact path="/listing/:location?" component={Listings} />
+        <Route exact path="/user/:id" component={User} />
+        <Route component={NotFound} />
+      </Switch>
+    </Router>
+  );
+};
+
 render(
   <ApolloProvider client={client}>
-    <Listings title="Thuan"></Listings>
+    <App />
   </ApolloProvider>,
   document.getElementById("root")
 );
