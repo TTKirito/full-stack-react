@@ -25,9 +25,10 @@
 .app-header__logo {
   display: inline-block;
   padding: 0 20px;
+  margin: 0 -45px;
 }
 .app-header__logo img {
-  width: 36px;
+  width: 130px;
 }
 .app-header__search-input {
   display: flex;
