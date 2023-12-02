@@ -11,7 +11,10 @@ import {
 } from "../../lib/graphql/mutations/Login/__generated__/LogIn";
 import { LOG_IN } from "../../lib/graphql/mutations/Login";
 import { useEffect, useRef } from "react";
-import { displayErrorMessage } from "../../lib/components";
+import {
+  displayErrorMessage,
+  displaySuccessNotification,
+} from "../../lib/components";
 import { ErrorBanner } from "../../lib/components/ErrorBanner";
 import { Redirect } from "react-router-dom";
 
@@ -30,6 +33,8 @@ export const LogIn = ({ setViewer }: Props) => {
         if (data && data.logIn) {
           setViewer(data.logIn);
         }
+
+        displaySuccessNotification("You've successfully logged in!");
       },
     });
 
@@ -106,7 +111,7 @@ export const LogIn = ({ setViewer }: Props) => {
           </span>
         </button>
         <Text type="secondary">
-          Not: By signing in, you'll be redirected to the Google consent from to
+          Note: By signing in, you'll be redirected to the Google consent from to
           sign in with your Google account.
         </Text>
       </Card>
