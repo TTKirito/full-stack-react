@@ -1,8 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { render } from "react-dom";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
-import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
+import {
+  ApolloClient,
+  ApolloProvider,
+  createHttpLink,
+  InMemoryCache,
+  useApolloClient,
+  useMutation,
+} from "@apollo/client";
 import "./styles/index.css";
 import {
   Listings,
@@ -16,10 +23,22 @@ import {
 } from "./sections";
 import Layout from "antd/es/layout/layout";
 import { Viewer } from "./lib/types";
-import { Affix } from "antd";
+import { Affix, Spin } from "antd";
+import {
+  LogIn as LoginData,
+  LogInVariables,
+} from "./lib/graphql/mutations/Login/__generated__/LogIn";
+import { LOG_IN } from "./lib/graphql/mutations/Login";
+import { AppHeaderSkeleton } from "./sections/AppHeader/components";
+import { ErrorBanner } from "./lib/components/ErrorBanner";
+
+const link = createHttpLink({
+  uri: "http://localhost:9000/api",
+  credentials: "include",
+});
 
 const client = new ApolloClient({
-  uri: "http://localhost:9000/api",
+  link,
   cache: new InMemoryCache(),
 });
 
@@ -33,11 +52,42 @@ const initialViewer: Viewer = {
 
 const App = () => {
   const [viewer, setViewer] = useState<Viewer>(initialViewer);
+  const client = useApolloClient();
+  const [logIn, { error }] = useMutation<LoginData, LogInVariables>(LOG_IN, {
+    onCompleted: (data) => {
+      if (data && data.logIn) {
+        setViewer(data.logIn);
+      }
+    },
+  });
+
+  const logInRef = useRef(logIn);
+
+  useEffect(() => {
+    logInRef.current();
+  }, []);
+
+  if (!viewer.didRequest && !error) {
+    return (
+      <Layout className="app-skeleton">
+        <AppHeaderSkeleton />
+        <div className="app-skeleton__spin-section">
+          <Spin size="large" tip="Launching Thuan" />
+        </div>
+      </Layout>
+    );
+  }
+
+  const logInErrorBannerElement = error ? (
+    <ErrorBanner description="We weren't able to verify if you were logged in. Please try again later!" />
+  ) : null;
+
   return (
     <Router>
       <Layout id="app">
+        {logInErrorBannerElement}
         <Affix offsetTop={0} className="app_affix-header">
-          <AppHeader viewer={viewer} setViewer={setViewer}/>
+          <AppHeader viewer={viewer} setViewer={setViewer} />
         </Affix>
         <Switch>
           <Route exact path="/" component={Home} />
