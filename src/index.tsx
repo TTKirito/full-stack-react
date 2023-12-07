@@ -4,7 +4,9 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
 import {
   ApolloClient,
+  ApolloLink,
   ApolloProvider,
+  concat,
   createHttpLink,
   InMemoryCache,
   useApolloClient,
@@ -37,8 +39,19 @@ const link = createHttpLink({
   credentials: "include",
 });
 
+const authMiddleware = new ApolloLink((operation, forward) => {
+  const token = sessionStorage.getItem("token");
+  operation.setContext({
+    headers: {
+      "X-CSRF_TOKEN": token || "",
+    },
+  });
+
+  return forward(operation);
+});
+
 const client = new ApolloClient({
-  link,
+  link: concat(authMiddleware, link),
   cache: new InMemoryCache(),
 });
 
@@ -52,11 +65,17 @@ const initialViewer: Viewer = {
 
 const App = () => {
   const [viewer, setViewer] = useState<Viewer>(initialViewer);
-  const client = useApolloClient();
+  // const client = useApolloClient();
   const [logIn, { error }] = useMutation<LoginData, LogInVariables>(LOG_IN, {
     onCompleted: (data) => {
       if (data && data.logIn) {
         setViewer(data.logIn);
+
+        if (data.logIn.token) {
+          sessionStorage.setItem("token", data.logIn.token);
+        } else {
+          sessionStorage.removeItem("token");
+        }
       }
     },
   });
