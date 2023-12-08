@@ -1,6 +1,7 @@
 import { useQuery } from "@apollo/client";
 import { Col, Row } from "antd";
 import { Content } from "antd/es/layout/layout";
+import { useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { ErrorBanner, PageSkeleton } from "../../lib/components";
 import { USER } from "../../lib/graphql/queries";
@@ -9,6 +10,7 @@ import {
   UserVariables,
 } from "../../lib/graphql/queries/User/__generated__/User";
 import { Viewer } from "../../lib/types";
+import { UserBookings, UserListings } from "./components";
 import { UserProfile } from "./components/UserProfile";
 
 interface Props {
@@ -18,14 +20,19 @@ interface Props {
 interface MatchParams {
   id: string;
 }
-
+const PAGE_LIMIT = 4;
 export const User = ({
   viewer,
   match,
 }: Props & RouteComponentProps<MatchParams>) => {
+  const [listingsPage, setListingsPage] = useState(1);
+  const [bookingsPage, setBookingsPage] = useState(1);
   const { data, loading, error } = useQuery<UserData, UserVariables>(USER, {
     variables: {
       id: match.params.id,
+      bookingsPage,
+      listingsPage,
+      limit: PAGE_LIMIT,
     },
   });
 
@@ -49,13 +56,39 @@ export const User = ({
   const user = data ? data.user : null;
   const viewerIsUser = viewer.id === match.params.id;
 
+  const userListings = user ? user.listings : null;
+  const userBookings = user ? user.bookings : null;
+
   const userProfileElement = user ? (
     <UserProfile user={user} viewerIsUser={viewerIsUser} />
   ) : null;
+
+  const userListingsElement = userListings ? (
+    <UserListings
+      userListings={userListings}
+      listingsPage={listingsPage}
+      limit={PAGE_LIMIT}
+      setListingsPage={setListingsPage}
+    />
+  ) : null;
+
+  const userBookingsElement = userBookings ? (
+    <UserBookings
+      userBookings={userBookings}
+      bookingsPage={bookingsPage}
+      limit={PAGE_LIMIT}
+      setBookingsPage={setBookingsPage}
+    />
+  ) : null;
+
   return (
     <Content>
       <Row gutter={12} justify="space-between" style={{ marginTop: "60px" }}>
         <Col xs={24}>{userProfileElement}</Col>
+        <Col xs={19} style={{ margin: '0 200px'}}>
+          {userListingsElement}
+          {userBookingsElement}
+        </Col>
       </Row>
     </Content>
   );
