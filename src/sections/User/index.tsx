@@ -82,10 +82,10 @@ export const User = ({
   ) : null;
 
   return (
-    <Content>
-      <Row gutter={12} justify="space-between" style={{ marginTop: "60px" }}>
+    <Content className="user">
+      <Row gutter={12} justify="space-between">
         <Col xs={24}>{userProfileElement}</Col>
-        <Col xs={19} style={{ margin: '0 200px'}}>
+        <Col xs={24}>
           {userListingsElement}
           {userBookingsElement}
         </Col>
