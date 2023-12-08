@@ -14,7 +14,7 @@ import { useEffect, useRef } from "react";
 import {
   displayErrorMessage,
   displaySuccessNotification,
-} from "../../lib/components";
+} from "../../lib/utils.ts";
 import { ErrorBanner } from "../../lib/components/ErrorBanner";
 import { Redirect } from "react-router-dom";
 
