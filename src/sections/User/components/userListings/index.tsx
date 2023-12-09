@@ -26,6 +26,7 @@ export const UserListings = ({
         xs: 1,
         sm: 2,
         lg: 4,
+        column: 4
       }}
       dataSource={result}
       locale={{ emptyText: "User doesn't have any listings yet!" }}

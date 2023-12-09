@@ -27,6 +27,7 @@ export const UserBookings = ({
         xs: 1,
         sm: 2,
         lg: 4,
+        column: 4
       }}
       dataSource={result ? result : undefined}
       locale={{ emptyText: "User doesn't have any listings yet!" }}
