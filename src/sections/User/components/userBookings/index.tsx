@@ -30,7 +30,7 @@ export const UserBookings = ({
         column: 4
       }}
       dataSource={result ? result : undefined}
-      locale={{ emptyText: "User doesn't have any listings yet!" }}
+      locale={{ emptyText: "User doesn't have any bookings yet!" }}
       pagination={{
         position: "top",
         current: bookingsPage,
@@ -62,11 +62,11 @@ export const UserBookings = ({
   ) : null;
 
   const userBookingsElement = (
-    <div className="user-listings">
-      <Title level={4} className="user-listings__title">
+    <div className="user-bookings">
+      <Title level={4} className="user-bookings__title">
         Bookings
       </Title>
-      <Paragraph className="user-listings__description">
+      <Paragraph className="user-bookings__description">
         This section highlights the bookings you've made, and the
         check-in/check-out dates associated with said bookings.
       </Paragraph>

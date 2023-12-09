@@ -1,4 +1,5 @@
 import { useQuery } from "@apollo/client";
+import { Col, Row } from "antd";
 import { Content } from "antd/es/layout/layout";
 import { useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
@@ -8,6 +9,7 @@ import {
   Listing as ListingData,
   ListingVariables,
 } from "../../lib/graphql/queries/Listing/__generated__/Listing";
+import { ListingBookings, ListingDetails } from "./components";
 
 interface MatchParams {
   id: string;
@@ -45,7 +47,86 @@ export const Listing = ({ match }: RouteComponentProps<MatchParams>) => {
   }
 
   const listing = data ? data.listing : null;
-  const listingBookings = listing ? listing.bookings : null;
+  let listingBookings = listing ? listing.bookings : null;
 
-  return <h2>Listing</h2>;
+  const listingDetailsElement = listing ? (
+    <ListingDetails listing={listing} />
+  ) : null;
+
+  listingBookings = {
+    total: 4,
+    result: [
+      {
+        id: "1",
+        tenant: {
+          id: "114186990765449545089",
+          name: "USEr",
+          avatar:
+            "https://lh3.googleusercontent.com/a/ACg8ocLrz1zV_pYYoRXAO7VFkO74063uTHlrZ8UZA4cF-qYCW3M=s100",
+          __typename: "User",
+        },
+        checkIn: "2019-10-29",
+        checkOut: "2019-10-31",
+        __typename: "Booking",
+      },
+      {
+        id: "1",
+        tenant: {
+          id: "114186990765449545089",
+          name: "USEr",
+          avatar:
+            "https://lh3.googleusercontent.com/a/ACg8ocLrz1zV_pYYoRXAO7VFkO74063uTHlrZ8UZA4cF-qYCW3M=s100",
+          __typename: "User",
+        },
+        checkIn: "2019-10-29",
+        checkOut: "2019-10-31",
+        __typename: "Booking",
+      },
+      {
+        id: "1",
+        tenant: {
+          id: "114186990765449545089",
+          name: "USEr",
+          avatar:
+            "https://lh3.googleusercontent.com/a/ACg8ocLrz1zV_pYYoRXAO7VFkO74063uTHlrZ8UZA4cF-qYCW3M=s100",
+          __typename: "User",
+        },
+        checkIn: "2019-10-29",
+        checkOut: "2019-10-31",
+        __typename: "Booking",
+      },
+      {
+        id: "1",
+        tenant: {
+          id: "114186990765449545089",
+          name: "USEr",
+          avatar:
+            "https://lh3.googleusercontent.com/a/ACg8ocLrz1zV_pYYoRXAO7VFkO74063uTHlrZ8UZA4cF-qYCW3M=s100",
+          __typename: "User",
+        },
+        checkIn: "2019-10-29",
+        checkOut: "2019-10-31",
+        __typename: "Booking",
+      },
+    ],
+  } as any;
+
+  const listingBookingsElement = listingBookings ? (
+    <ListingBookings
+      listingBookings={listingBookings}
+      bookingsPage={bookingsPage}
+      setBookingsPage={setBookingsPage}
+      limit={PAGE_LIMIT}
+    />
+  ) : null;
+  return (
+    <Content className="listings">
+      <Row gutter={24} justify="space-between">
+        <Col xs={24} lg={14}>
+          {listingDetailsElement}
+          {listingBookingsElement}
+        </Col>
+      </Row>
+    </Content>
+  );
 };
