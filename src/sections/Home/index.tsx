@@ -1,16 +1,35 @@
 import { Content } from "antd/es/layout/layout";
 import { HomeHero } from "./components/HomeHero";
+import { ListingsFilter } from "../../lib/graphql/globalTypes";
 
 import mapBackground from "./assets/map-background.jpg";
 
 import { Link, RouteComponentProps } from "react-router-dom";
 import { displayErrorMessage } from "../../lib/utils.ts";
 import { Button, Col, Row, Typography } from "antd";
+import { useQuery } from "@apollo/client";
+import {
+  Listings as ListingsData,
+  ListingsVariables,
+} from "../../lib/graphql/queries/Listings/__generated__/Listings";
+import { LISTINGS } from "../../lib/graphql/queries";
+import { HomeListings, HomeListingsSkeleton } from "./components";
 
 const { Title, Paragraph } = Typography;
 const hueImgae = `https://huedailytour.net/wp-content/uploads/2023/02/DAI-NOI.jpeg`;
 
+const PAGE_LIMIT = 4;
+const PAGE_NUMBER = 1;
+
 export const Home = ({ history }: RouteComponentProps) => {
+  const { loading, data } = useQuery<ListingsData, ListingsVariables>(LISTINGS, {
+    variables: {
+      filter: ListingsFilter.PRICE_HIGH_TO_LOW,
+      limit: PAGE_LIMIT,
+      page: PAGE_NUMBER,
+    },
+  });
+
   const onSearch = (value: string) => {
     const trimmedValue = value.trim();
 
@@ -20,6 +39,23 @@ export const Home = ({ history }: RouteComponentProps) => {
       displayErrorMessage("Please enter a valid search!");
     }
   };
+
+
+
+  const renderListingSection = () => {
+    if (loading) {
+      return <HomeListingsSkeleton />
+    }
+
+    if (data) {
+      return (
+        <HomeListings title="Premium Listings" listings={data.listings.result}/>
+      )
+    }
+
+    return null;
+  }
+
 
   return (
     <Content
@@ -42,6 +78,8 @@ export const Home = ({ history }: RouteComponentProps) => {
           </Link>
         </Button>
       </div>
+
+      {renderListingSection()}
 
       <div className="home__listings">
         <Title level={4} className="home__listings-title">
