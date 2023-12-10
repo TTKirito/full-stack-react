@@ -2,7 +2,6 @@ import { useQuery } from "@apollo/client";
 import { Col, Row } from "antd";
 import { Content } from "antd/es/layout/layout";
 import { Dayjs } from "dayjs";
-import { Moment } from "moment";
 import { useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { PageSkeleton } from "../../lib/components";
