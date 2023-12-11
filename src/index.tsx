@@ -8,6 +8,7 @@ import {
   ApolloProvider,
   concat,
   createHttpLink,
+  HttpLink,
   InMemoryCache,
   useApolloClient,
   useMutation,
@@ -22,6 +23,7 @@ import {
   User,
   LogIn,
   AppHeader,
+  Stripe,
 } from "./sections";
 import Layout from "antd/es/layout/layout";
 import { Viewer } from "./lib/types";
@@ -33,25 +35,26 @@ import {
 import { LOG_IN } from "./lib/graphql/mutations/Login";
 import { AppHeaderSkeleton } from "./sections/AppHeader/components";
 import { ErrorBanner } from "./lib/components/ErrorBanner";
+import { setContext } from "@apollo/client/link/context";
 
 const link = createHttpLink({
   uri: "http://localhost:9000/api",
   credentials: "include",
 });
 
-const authMiddleware = new ApolloLink((operation, forward) => {
+const authLink = setContext(async (_, { headers }) => {
   const token = sessionStorage.getItem("token");
-  operation.setContext({
-    headers: {
-      "X-CSRF_TOKEN": token || "",
-    },
-  });
 
-  return forward(operation);
+  return {
+    headers: {
+      ...headers,
+      "X-CSRF-TOKEN": token || "",
+    },
+  };
 });
 
 const client = new ApolloClient({
-  link: concat(authMiddleware, link),
+  link: authLink.concat(link),
   cache: new InMemoryCache(),
 });
 
@@ -117,6 +120,13 @@ const App = () => {
             exact
             path="/login"
             render={(props) => <LogIn {...props} setViewer={setViewer} />}
+          />
+          <Route
+            exact
+            path="/stripe"
+            render={(props) => (
+              <Stripe {...props} viewer={viewer} setViewer={setViewer} />
+            )}
           />
           <Route
             exact
