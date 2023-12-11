@@ -17,7 +17,11 @@ interface Props {
 
 const { Content } = Layout;
 
-export const Stripe = ({ viewer, setViewer, history }: Props & RouteComponentProps) => {
+export const Stripe = ({
+  viewer,
+  setViewer,
+  history,
+}: Props & RouteComponentProps) => {
   const [connectStripe, { data, loading, error }] = useMutation<
     ConnectStripeData,
     ConnectStripeVariables
@@ -28,7 +32,7 @@ export const Stripe = ({ viewer, setViewer, history }: Props & RouteComponentPro
         displaySuccessNotification(
           "You've successfully connected your Stripe Account!",
           "you can now begin to create listings in the Host page."
-        )
+        );
       }
     },
   });
@@ -43,9 +47,13 @@ export const Stripe = ({ viewer, setViewer, history }: Props & RouteComponentPro
         },
       });
     } else {
-      history.replace('/login')
+      history.replace("/login");
     }
   }, [history]);
+
+  if (data && data.connectStripe) {
+    return <Redirect to={`/user/${viewer.id}`} />;
+  }
 
   if (loading) {
     return (
