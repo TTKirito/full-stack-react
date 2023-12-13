@@ -10,6 +10,7 @@ import {
   Listing as ListingData,
   ListingVariables,
 } from "../../lib/graphql/queries/Listing/__generated__/Listing";
+import { Viewer } from "../../lib/types";
 import {
   ListingBookings,
   ListingCreateBooking,
@@ -20,9 +21,13 @@ interface MatchParams {
   id: string;
 }
 
+interface Props {
+  viewer: Viewer
+}
+
 const PAGE_LIMIT = 3;
 
-export const Listing = ({ match }: RouteComponentProps<MatchParams>) => {
+export const Listing = ({ match, viewer }: Props & RouteComponentProps<MatchParams>) => {
   const [bookingsPage, setBookingsPage] = useState(1);
   const [checkInDate, setCheckInDate] = useState<Dayjs | null>(null);
   const [checkOutDate, setCheckOutDate] = useState<Dayjs | null>(null);
@@ -135,6 +140,9 @@ export const Listing = ({ match }: RouteComponentProps<MatchParams>) => {
       checkOutDate={checkOutDate}
       setCheckInDate={setCheckInDate}
       setCheckOutDate={setCheckOutDate}
+      viewer={viewer}
+      host={listing.host}
+      bookingsIndex={listing.bookingsIndex}
     />
   ) : null;
 

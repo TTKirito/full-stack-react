@@ -1,13 +1,19 @@
 import { Button, Card, DatePicker, Divider, Typography } from "antd";
 import dayjs, { Dayjs } from "dayjs";
+import { Listing as ListingData } from "../../../../lib/graphql/queries/Listing/__generated__/Listing";
+import { Viewer } from "../../../../lib/types";
 import {
   displayErrorMessage,
   formatListingPrice,
 } from "../../../../lib/utils.ts";
+import { BookingsIndex } from "./types";
 
 const { Paragraph, Text, Title } = Typography;
 
 interface Props {
+  viewer: Viewer;
+  host: ListingData["listing"]["host"];
+  bookingsIndex: ListingData["listing"]["bookingsIndex"];
   price: number;
   checkInDate: Dayjs | null;
   checkOutDate: Dayjs | null;
@@ -21,11 +27,28 @@ export const ListingCreateBooking = ({
   checkOutDate,
   setCheckInDate,
   setCheckOutDate,
+  host,
+  viewer,
+  bookingsIndex,
 }: Props) => {
+  const bookingsIndexJSON: BookingsIndex = JSON.parse(bookingsIndex);
+
+  const dateIsBooked = (currentDate: Dayjs) => {
+    const year = dayjs(currentDate).year();
+    const month = dayjs(currentDate).month();
+    const day = dayjs(currentDate).date();
+
+    if (bookingsIndex[year] && bookingsIndex[year][month]) {
+      return Boolean(bookingsIndexJSON[year][month][day]);
+    } else {
+      return false;
+    }
+  };
+
   const disableDate = (currentDate?: Dayjs) => {
     if (currentDate) {
       const dateIsBeforeEndOfDate = currentDate.isBefore(dayjs().endOf("day"));
-      return dateIsBeforeEndOfDate;
+      return dateIsBeforeEndOfDate || dateIsBooked(currentDate);
     } else {
       return false;
     }
@@ -39,12 +62,43 @@ export const ListingCreateBooking = ({
         );
       }
 
+
+      let dateCursor = checkInDate;
+
+      while (dayjs(dateCursor).isBefore(selectedCheckOutDate, 'days')) {
+        dateCursor = dayjs(dateCursor).add(1, 'days')
+
+        const year = dayjs(dateCursor).year();
+        const month = dayjs(dateCursor).month();
+        const day = dayjs(dateCursor).date();
+    
+        if (bookingsIndex[year] && bookingsIndex[year][month] && bookingsIndex[year][month][day]) {
+          return displayErrorMessage("You can't book a period of time that overlaps existing bookings. Please try again!")
+        } else {
+          return false;
+        }
+      }
+
       setCheckOutDate(selectedCheckOutDate);
     }
   };
 
-  const checkOutInputDisabled = !checkInDate;
-  const buttonDisabled = !checkInDate || !checkOutDate;
+  const viewerIsHost = viewer.id === host.id;
+  const checkInInputDisabled = !viewer.id || viewerIsHost || !host.hasWallet;
+  const checkOutInputDisabled = checkInInputDisabled || !checkInDate;
+  const buttonDisabled = checkOutInputDisabled || !checkInDate || !checkOutDate;
+
+
+  console.log(checkInInputDisabled, 'check', checkOutInputDisabled)
+  let buttonMessage = "You won't be charged yet";
+  if (!viewer.id) {
+    buttonMessage = "You have to be signed in to book a listing!";
+  } else if (viewerIsHost) {
+    buttonMessage = "You can't book your own listing!";
+  } else if (!host.hasWallet) {
+    buttonMessage =
+      "The host has disconnected from Stripe and thus won't be able to receive payment!";
+  }
 
   return (
     <div className="listing-booking">
@@ -65,6 +119,7 @@ export const ListingCreateBooking = ({
               format={"YYYY/MM/DD"}
               disabledDate={disableDate}
               showToday={false}
+              disabled={checkInInputDisabled}
               onOpenChange={() => setCheckOutDate(null)}
             />
           </div>
@@ -89,8 +144,9 @@ export const ListingCreateBooking = ({
           type="primary"
           className="listing-booking__card-cta"
         >
-          Reqeust to book!
+          Request to book!
         </Button>
+        {buttonMessage}
       </Card>
     </div>
   );
