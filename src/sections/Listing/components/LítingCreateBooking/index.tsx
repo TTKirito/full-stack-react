@@ -1,5 +1,6 @@
 import { Button, Card, DatePicker, Divider, Typography } from "antd";
 import dayjs, { Dayjs } from "dayjs";
+import { useEffect } from "react";
 import { Listing as ListingData } from "../../../../lib/graphql/queries/Listing/__generated__/Listing";
 import { Viewer } from "../../../../lib/types";
 import {
@@ -19,6 +20,7 @@ interface Props {
   checkOutDate: Dayjs | null;
   setCheckInDate: (checkInDate: Dayjs | null) => void;
   setCheckOutDate: (checkOutDate: Dayjs | null) => void;
+  setModalVisible: (modalVisible: boolean) => void;
 }
 
 export const ListingCreateBooking = ({
@@ -30,6 +32,7 @@ export const ListingCreateBooking = ({
   host,
   viewer,
   bookingsIndex,
+  setModalVisible,
 }: Props) => {
   const bookingsIndexJSON: BookingsIndex = JSON.parse(bookingsIndex);
 
@@ -38,14 +41,14 @@ export const ListingCreateBooking = ({
     const month = dayjs(currentDate).month();
     const day = dayjs(currentDate).date();
 
-    if (bookingsIndex[year] && bookingsIndex[year][month]) {
+    if (bookingsIndexJSON[year] && bookingsIndexJSON[year][month]) {
       return Boolean(bookingsIndexJSON[year][month][day]);
     } else {
       return false;
     }
   };
 
-  const disableDate = (currentDate?: Dayjs) => {
+  const disabledDate = (currentDate?: Dayjs) => {
     if (currentDate) {
       const dateIsBeforeEndOfDate = currentDate.isBefore(dayjs().endOf("day"));
       return dateIsBeforeEndOfDate || dateIsBooked(currentDate);
@@ -62,25 +65,28 @@ export const ListingCreateBooking = ({
         );
       }
 
-
       let dateCursor = checkInDate;
 
-      while (dayjs(dateCursor).isBefore(selectedCheckOutDate, 'days')) {
-        dateCursor = dayjs(dateCursor).add(1, 'days')
+      while (dayjs(dateCursor).isBefore(selectedCheckOutDate, "days")) {
+        dateCursor = dayjs(dateCursor).add(1, "days");
 
         const year = dayjs(dateCursor).year();
         const month = dayjs(dateCursor).month();
         const day = dayjs(dateCursor).date();
-    
-        if (bookingsIndex[year] && bookingsIndex[year][month] && bookingsIndex[year][month][day]) {
-          return displayErrorMessage("You can't book a period of time that overlaps existing bookings. Please try again!")
-        } else {
-          return false;
+
+        if (
+          bookingsIndexJSON[year] &&
+          bookingsIndexJSON[year][month] &&
+          bookingsIndexJSON[year][month][day]
+        ) {
+          return displayErrorMessage(
+            "You can't book a period of time that overlaps existing bookings. Please try again!"
+          );
         }
       }
-
-      setCheckOutDate(selectedCheckOutDate);
     }
+
+    setCheckOutDate(selectedCheckOutDate);
   };
 
   const viewerIsHost = viewer.id === host.id;
@@ -88,8 +94,6 @@ export const ListingCreateBooking = ({
   const checkOutInputDisabled = checkInInputDisabled || !checkInDate;
   const buttonDisabled = checkOutInputDisabled || !checkInDate || !checkOutDate;
 
-
-  console.log(checkInInputDisabled, 'check', checkOutInputDisabled)
   let buttonMessage = "You won't be charged yet";
   if (!viewer.id) {
     buttonMessage = "You have to be signed in to book a listing!";
@@ -97,7 +101,7 @@ export const ListingCreateBooking = ({
     buttonMessage = "You can't book your own listing!";
   } else if (!host.hasWallet) {
     buttonMessage =
-      "The host has disconnected from Stripe and thus won't be able to receive payment!";
+      "The host has disconnected from Stripe and thus won't be able to receive payments!";
   }
 
   return (
@@ -115,11 +119,11 @@ export const ListingCreateBooking = ({
             <Paragraph strong>Check In</Paragraph>
             <DatePicker
               value={checkInDate ? checkInDate : undefined}
-              onChange={(checkInDate) => setCheckInDate(checkInDate)}
               format={"YYYY/MM/DD"}
-              disabledDate={disableDate}
               showToday={false}
               disabled={checkInInputDisabled}
+              disabledDate={disabledDate}
+              onChange={(dateValue) => setCheckInDate(dateValue)}
               onOpenChange={() => setCheckOutDate(null)}
             />
           </div>
@@ -127,13 +131,11 @@ export const ListingCreateBooking = ({
             <Paragraph strong>Check Out</Paragraph>
             <DatePicker
               value={checkOutDate ? checkOutDate : undefined}
-              onChange={(checkOutDate) =>
-                verifyAndSetCheckOutDate(checkOutDate)
-              }
               format={"YYYY/MM/DD"}
-              disabledDate={disableDate}
               showToday={false}
               disabled={checkOutInputDisabled}
+              disabledDate={disabledDate}
+              onChange={(dateValue) => verifyAndSetCheckOutDate(dateValue)}
             />
           </div>
         </div>
@@ -143,10 +145,13 @@ export const ListingCreateBooking = ({
           size="large"
           type="primary"
           className="listing-booking__card-cta"
+          onClick={() => setModalVisible(true)}
         >
           Request to book!
         </Button>
-        {buttonMessage}
+        <Text type="secondary" mark>
+          {buttonMessage}
+        </Text>
       </Card>
     </div>
   );

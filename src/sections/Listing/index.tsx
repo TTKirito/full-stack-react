@@ -14,6 +14,7 @@ import { Viewer } from "../../lib/types";
 import {
   ListingBookings,
   ListingCreateBooking,
+  ListingCreateBookingModel,
   ListingDetails,
 } from "./components";
 
@@ -22,15 +23,19 @@ interface MatchParams {
 }
 
 interface Props {
-  viewer: Viewer
+  viewer: Viewer;
 }
 
 const PAGE_LIMIT = 3;
 
-export const Listing = ({ match, viewer }: Props & RouteComponentProps<MatchParams>) => {
+export const Listing = ({
+  match,
+  viewer,
+}: Props & RouteComponentProps<MatchParams>) => {
   const [bookingsPage, setBookingsPage] = useState(1);
   const [checkInDate, setCheckInDate] = useState<Dayjs | null>(null);
   const [checkOutDate, setCheckOutDate] = useState<Dayjs | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const { loading, data, error } = useQuery<ListingData, ListingVariables>(
     LISTING,
@@ -143,8 +148,21 @@ export const Listing = ({ match, viewer }: Props & RouteComponentProps<MatchPara
       viewer={viewer}
       host={listing.host}
       bookingsIndex={listing.bookingsIndex}
+      setModalVisible={setModalVisible}
     />
   ) : null;
+
+  const listingCreateBookingModalElement = listing &&
+    checkInDate &&
+    checkOutDate && (
+      <ListingCreateBookingModel
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        price={listing?.price}
+        checkInDate={checkInDate}
+        checkOutDate={checkOutDate}
+      />
+    );
 
   return (
     <Content className="listings">
@@ -157,6 +175,7 @@ export const Listing = ({ match, viewer }: Props & RouteComponentProps<MatchPara
           {listingCreateBooking}
         </Col>
       </Row>
+      {listingCreateBookingModalElement}
     </Content>
   );
 };
