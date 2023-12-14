@@ -2,10 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { render } from "react-dom";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
+import { StripeProvider, Elements } from "react-stripe-elements";
 import {
   ApolloClient,
+  ApolloLink,
   ApolloProvider,
+  concat,
   createHttpLink,
+  HttpLink,
   InMemoryCache,
   useApolloClient,
   useMutation,
@@ -20,6 +24,7 @@ import {
   User,
   LogIn,
   AppHeader,
+  Stripe,
 } from "./sections";
 import Layout from "antd/es/layout/layout";
 import { Viewer } from "./lib/types";
@@ -31,14 +36,26 @@ import {
 import { LOG_IN } from "./lib/graphql/mutations/Login";
 import { AppHeaderSkeleton } from "./sections/AppHeader/components";
 import { ErrorBanner } from "./lib/components/ErrorBanner";
+import { setContext } from "@apollo/client/link/context";
 
 const link = createHttpLink({
   uri: "http://localhost:9000/api",
   credentials: "include",
 });
 
+const authLink = setContext(async (_, { headers }) => {
+  const token = sessionStorage.getItem("token");
+
+  return {
+    headers: {
+      ...headers,
+      "X-CSRF-TOKEN": token || "",
+    },
+  };
+});
+
 const client = new ApolloClient({
-  link,
+  link: authLink.concat(link),
   cache: new InMemoryCache(),
 });
 
@@ -52,11 +69,17 @@ const initialViewer: Viewer = {
 
 const App = () => {
   const [viewer, setViewer] = useState<Viewer>(initialViewer);
-  const client = useApolloClient();
+  // const client = useApolloClient();
   const [logIn, { error }] = useMutation<LoginData, LogInVariables>(LOG_IN, {
     onCompleted: (data) => {
       if (data && data.logIn) {
         setViewer(data.logIn);
+
+        if (data.logIn.token) {
+          sessionStorage.setItem("token", data.logIn.token);
+        } else {
+          sessionStorage.removeItem("token");
+        }
       }
     },
   });
@@ -83,27 +106,54 @@ const App = () => {
   ) : null;
 
   return (
-    <Router>
-      <Layout id="app">
-        {logInErrorBannerElement}
-        <Affix offsetTop={0} className="app_affix-header">
-          <AppHeader viewer={viewer} setViewer={setViewer} />
-        </Affix>
-        <Switch>
-          <Route exact path="/" component={Home} />
-          <Route exact path="/host" component={Host} />
-          <Route exact path="/listing/:id" component={Listing} />
-          <Route exact path="/listing/:location?" component={Listings} />
-          <Route
-            exact
-            path="/login"
-            render={(props) => <LogIn {...props} setViewer={setViewer} />}
-          />
-          <Route exact path="/user/:id" component={User} />
-          <Route component={NotFound} />
-        </Switch>
-      </Layout>
-    </Router>
+    <StripeProvider apiKey={process.env.REACT_APP_S_PUBLISHABLE_KEY as string}>
+      <Router>
+        <Layout id="app">
+          {logInErrorBannerElement}
+          <Affix offsetTop={0} className="app_affix-header">
+            <AppHeader viewer={viewer} setViewer={setViewer} />
+          </Affix>
+          <Switch>
+            <Route exact path="/" component={Home} />
+            <Route
+              exact
+              path="/host"
+              render={(props) => <Host {...props} viewer={viewer} />}
+            />
+            <Route
+              exact
+              path="/listing/:id"
+              render={(props) => (
+                <Elements>
+                  <Listing {...props} viewer={viewer} />
+                </Elements>
+              )}
+            />
+            <Route exact path="/listings/:location?" component={Listings} />
+            <Route
+              exact
+              path="/login"
+              render={(props) => <LogIn {...props} setViewer={setViewer} />}
+            />
+            <Route
+              exact
+              path="/stripe"
+              render={(props) => (
+                <Stripe {...props} viewer={viewer} setViewer={setViewer} />
+              )}
+            />
+            <Route
+              exact
+              path="/user/:id"
+              render={(props) => (
+                <User {...props} viewer={viewer} setViewer={setViewer} />
+              )}
+            />
+            <Route component={NotFound} />
+          </Switch>
+        </Layout>
+      </Router>
+    </StripeProvider>
   );
 };
 

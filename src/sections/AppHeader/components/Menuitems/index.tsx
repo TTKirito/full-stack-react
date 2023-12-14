@@ -5,7 +5,7 @@ import { Viewer } from "../../../../lib/types";
 import { LOG_OUT } from "../../../../lib/graphql/mutations/Logout";
 import { LogOut as LogOutData } from "../../../../lib/graphql/mutations/Logout/__generated__/LogOut";
 import { useMutation } from "@apollo/client";
-import { displayErrorMessage, displaySuccessNotification } from "../../../../lib/components";
+import { displayErrorMessage, displaySuccessNotification } from "../../../../lib/utils.ts";
 const { Item, SubMenu } = Menu;
 
 interface Props {

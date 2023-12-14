@@ -14,7 +14,7 @@ import { useEffect, useRef } from "react";
 import {
   displayErrorMessage,
   displaySuccessNotification,
-} from "../../lib/components";
+} from "../../lib/utils.ts";
 import { ErrorBanner } from "../../lib/components/ErrorBanner";
 import { Redirect } from "react-router-dom";
 
@@ -30,11 +30,11 @@ export const LogIn = ({ setViewer }: Props) => {
   const [logIn, { data: logInData, loading: logInLoading, error: logInError }] =
     useMutation<LoginData, LogInVariables>(LOG_IN, {
       onCompleted: (data) => {
-        if (data && data.logIn) {
+        if (data && data.logIn && data.logIn.token) {
           setViewer(data.logIn);
+          sessionStorage.setItem("token", data.logIn.token);
+          displaySuccessNotification("You've successfully logged in!");
         }
-
-        displaySuccessNotification("You've successfully logged in!");
       },
     });
 
@@ -111,8 +111,8 @@ export const LogIn = ({ setViewer }: Props) => {
           </span>
         </button>
         <Text type="secondary">
-          Note: By signing in, you'll be redirected to the Google consent from to
-          sign in with your Google account.
+          Note: By signing in, you'll be redirected to the Google consent from
+          to sign in with your Google account.
         </Text>
       </Card>
     </Content>
