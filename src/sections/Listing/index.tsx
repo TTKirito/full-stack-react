@@ -14,7 +14,7 @@ import { Viewer } from "../../lib/types";
 import {
   ListingBookings,
   ListingCreateBooking,
-  ListingCreateBookingModel,
+  WrappedListingCreateBookingModal,
   ListingDetails,
 } from "./components";
 
@@ -155,7 +155,7 @@ export const Listing = ({
   const listingCreateBookingModalElement = listing &&
     checkInDate &&
     checkOutDate && (
-      <ListingCreateBookingModel
+      <WrappedListingCreateBookingModal
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
         price={listing?.price}

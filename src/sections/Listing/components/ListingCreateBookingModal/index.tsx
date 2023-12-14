@@ -2,6 +2,11 @@ import { Button, Divider, Modal, Typography } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { KeyOutlined } from "@ant-design/icons";
 import { formatListingPrice } from "../../../../lib/utils.ts";
+import {
+  CardElement,
+  injectStripe,
+  ReactStripeElements,
+} from "react-stripe-elements";
 
 interface Props {
   modalVisible: boolean;
@@ -19,11 +24,23 @@ export const ListingCreateBookingModel = ({
   price,
   checkInDate,
   checkOutDate,
-}: Props) => {
+  stripe,
+}: Props & ReactStripeElements.InjectedStripeProps) => {
   const daysBooked = checkOutDate.diff(checkInDate, "days");
   const listingPrice = price * daysBooked;
   const fee = 0.05 * listingPrice;
   const totalPrice = listingPrice + fee;
+
+  const handleCreateBooking = async () => {
+    if (!stripe) {
+      return;
+    }
+
+
+    let { token: stripeToken } = await stripe.createToken();
+    console.log(stripeToken)
+  }
+
   return (
     <Modal
       open={modalVisible}
@@ -59,9 +76,8 @@ export const ListingCreateBookingModel = ({
             {formatListingPrice(price)} * {daysBooked} days ={" "}
             <Text strong>{formatListingPrice(listingPrice)}</Text>
           </Paragraph>
-          <Paragraph>   
-            Fee <sub>~ 5%</sub> ={" "}
-            <Text strong>{formatListingPrice(fee)}</Text>
+          <Paragraph>
+            Fee <sub>~ 5%</sub> = <Text strong>{formatListingPrice(fee)}</Text>
           </Paragraph>
           <Paragraph className="listing-booking-modal__charge-summary-total">
             Total = <Text mark>{formatListingPrice(totalPrice)}</Text>
@@ -70,10 +86,15 @@ export const ListingCreateBookingModel = ({
 
         <Divider />
         <div className="listing-booking-modal__stripe-card-section">
+          <CardElement
+            hidePostalCode
+            className="listing-booking-modal__stripe-card"
+          />
           <Button
             size="large"
             type="primary"
             className="listing-booking-modal__cta"
+            onClick={handleCreateBooking}
           >
             Book
           </Button>
@@ -82,3 +103,7 @@ export const ListingCreateBookingModel = ({
     </Modal>
   );
 };
+
+export const WrappedListingCreateBookingModal = injectStripe(
+  ListingCreateBookingModel
+);
