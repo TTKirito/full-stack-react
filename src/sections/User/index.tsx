@@ -58,6 +58,7 @@ export const User = ({
   }
 
   if (error) {
+    console.log(error, 'hix')
     return (
       <Content className="user">
         <ErrorBanner description="This user may not exist or we've encountered an error" />
