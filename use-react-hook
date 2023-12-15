@@ -1,0 +1,11 @@
+// access params of a router
+
+const { id } = useParams<MathParams>()
+
+// access history object
+
+const history = useHistory();
+
+// access location object
+
+const location = useLocation();
