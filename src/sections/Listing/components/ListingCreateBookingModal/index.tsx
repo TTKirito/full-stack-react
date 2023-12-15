@@ -60,8 +60,9 @@ export const ListingCreateBookingModel = ({
   });
   const daysBooked = checkOutDate.diff(checkInDate, "days");
   const listingPrice = price * daysBooked;
-  const fee = 0.05 * listingPrice;
-  const totalPrice = listingPrice + fee;
+  // const fee = 0.05 * listingPrice;
+  // const totalPrice = listingPrice + fee;
+  const totalPrice = listingPrice;
 
   const handleCreateBooking = async () => {
     if (!stripe) {
@@ -126,9 +127,9 @@ export const ListingCreateBookingModel = ({
             {formatListingPrice(price)} * {daysBooked} days ={" "}
             <Text strong>{formatListingPrice(listingPrice)}</Text>
           </Paragraph>
-          <Paragraph>
+          {/* <Paragraph>
             Fee <sub>~ 5%</sub> = <Text strong>{formatListingPrice(fee)}</Text>
-          </Paragraph>
+          </Paragraph> */}
           <Paragraph className="listing-booking-modal__charge-summary-total">
             Total = <Text mark>{formatListingPrice(totalPrice)}</Text>
           </Paragraph>

@@ -28,7 +28,9 @@
   margin: 0 -45px;
 }
 .app-header__logo img {
-  width: 130px;
+  width: 40px;
+  margin: 0px 30px 0 30px;
+  border-radius: 10px;
 }
 .app-header__search-input {
   display: flex;
