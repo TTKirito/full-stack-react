@@ -14,6 +14,7 @@ import {
 } from "../../lib/graphql/queries/Listings/__generated__/Listings";
 import { LISTINGS } from "../../lib/graphql/queries";
 import { HomeListings, HomeListingsSkeleton } from "./components";
+import { useScrollToTop } from "../../lib/hooks";
 
 const { Title, Paragraph } = Typography;
 const hueImgae = `https://huedailytour.net/wp-content/uploads/2023/02/DAI-NOI.jpeg`;
@@ -33,6 +34,8 @@ export const Home = ({ history }: RouteComponentProps) => {
       fetchPolicy: "cache-and-network"
     }
   );
+
+  useScrollToTop()
 
   const onSearch = (value: string) => {
     const trimmedValue = value.trim();

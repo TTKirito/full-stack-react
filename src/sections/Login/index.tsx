@@ -17,6 +17,7 @@ import {
 } from "../../lib/utils.ts";
 import { ErrorBanner } from "../../lib/components/ErrorBanner";
 import { Redirect } from "react-router-dom";
+import { useScrollToTop } from "../../lib/hooks";
 
 const { Content } = Layout;
 const { Text, Title } = Typography;
@@ -39,7 +40,7 @@ export const LogIn = ({ setViewer }: Props) => {
     });
 
   const logInRef = useRef(logIn);
-
+  useScrollToTop();
   useEffect(() => {
     const code = new URL(window.location.href).searchParams.get("code");
     if (code) {

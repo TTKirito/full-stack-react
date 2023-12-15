@@ -9,6 +9,7 @@ import {
   User as UserData,
   UserVariables,
 } from "../../lib/graphql/queries/User/__generated__/User";
+import { useScrollToTop } from "../../lib/hooks";
 import { Viewer } from "../../lib/types";
 import { UserBookings, UserListings } from "./components";
 import { UserProfile } from "./components/UserProfile";
@@ -29,18 +30,23 @@ export const User = ({
 }: Props & RouteComponentProps<MatchParams>) => {
   const [listingsPage, setListingsPage] = useState(1);
   const [bookingsPage, setBookingsPage] = useState(1);
-  const { data, loading, error, refetch } = useQuery<UserData, UserVariables>(USER, {
-    variables: {
-      id: match.params.id,
-      bookingsPage,
-      listingsPage,
-      limit: PAGE_LIMIT,
-    },
-  });
+  const { data, loading, error, refetch } = useQuery<UserData, UserVariables>(
+    USER,
+    {
+      variables: {
+        id: match.params.id,
+        bookingsPage,
+        listingsPage,
+        limit: PAGE_LIMIT,
+      },
+      fetchPolicy: "cache-and-network",
+    }
+  );
 
+  useScrollToTop();
   const handleUserRefetch = async () => {
     await refetch();
-  }
+  };
 
   const stripeError = new URL(window.location.href).searchParams.get(
     "stripe_error"
@@ -58,7 +64,6 @@ export const User = ({
   }
 
   if (error) {
-    console.log(error, 'hix')
     return (
       <Content className="user">
         <ErrorBanner description="This user may not exist or we've encountered an error" />
