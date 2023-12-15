@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { Link, withRouter, RouteComponentProps } from "react-router-dom";
 import { Viewer } from "../../lib/types";
 import { displayErrorMessage } from "../../lib/utils.ts";
-import logo from "./assets/logo.png";
 import { MenuItems } from "./components";
 
 const { Header } = Layout;
 const { Search } = Input;
+const logo = 'https://res.cloudinary.com/tttkirito/image/upload/v1702542400/APP_booking/jh53minmpipctd6gtldm.png'
 
 interface Props {
   viewer: Viewer;
@@ -51,7 +51,7 @@ export const AppHeader = withRouter(
           </div>
           <div className="app-header__search-input">
             <Search
-              placeholder="Search 'San Fransisco'"
+              placeholder="Search 'Hue'"
               enterButton
               onSearch={onSearch}
               value={search}

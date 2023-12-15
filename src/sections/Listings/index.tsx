@@ -10,6 +10,7 @@ import {
   Listings as ListingsData,
   ListingsVariables,
 } from "../../lib/graphql/queries/Listings/__generated__/Listings";
+import { useScrollToTop } from "../../lib/hooks";
 import {
   ListingsFilters,
   ListingsPagination,
@@ -39,7 +40,7 @@ export const Listings = ({ match }: RouteComponentProps<MatchParams>) => {
       },
     }
   );
-
+  useScrollToTop();
   useEffect(() => {
     setPage(1);
     locationRef.current = match.params.location;
@@ -82,7 +83,7 @@ export const Listings = ({ match }: RouteComponentProps<MatchParams>) => {
             xs: 1,
             sm: 2,
             lg: 4,
-            column: 4
+            column: 4,
           }}
           dataSource={listings.result}
           renderItem={(listing) => (

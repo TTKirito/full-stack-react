@@ -14,6 +14,7 @@ import {
 } from "../../lib/graphql/queries/Listings/__generated__/Listings";
 import { LISTINGS } from "../../lib/graphql/queries";
 import { HomeListings, HomeListingsSkeleton } from "./components";
+import { useScrollToTop } from "../../lib/hooks";
 
 const { Title, Paragraph } = Typography;
 const hueImgae = `https://huedailytour.net/wp-content/uploads/2023/02/DAI-NOI.jpeg`;
@@ -22,13 +23,19 @@ const PAGE_LIMIT = 4;
 const PAGE_NUMBER = 1;
 
 export const Home = ({ history }: RouteComponentProps) => {
-  const { loading, data } = useQuery<ListingsData, ListingsVariables>(LISTINGS, {
-    variables: {
-      filter: ListingsFilter.PRICE_HIGH_TO_LOW,
-      limit: PAGE_LIMIT,
-      page: PAGE_NUMBER,
-    },
-  });
+  const { loading, data } = useQuery<ListingsData, ListingsVariables>(
+    LISTINGS,
+    {
+      variables: {
+        filter: ListingsFilter.PRICE_HIGH_TO_LOW,
+        limit: PAGE_LIMIT,
+        page: PAGE_NUMBER,
+      },
+      fetchPolicy: "cache-and-network"
+    }
+  );
+
+  useScrollToTop()
 
   const onSearch = (value: string) => {
     const trimmedValue = value.trim();
@@ -40,22 +47,22 @@ export const Home = ({ history }: RouteComponentProps) => {
     }
   };
 
-
-
   const renderListingSection = () => {
     if (loading) {
-      return <HomeListingsSkeleton />
+      return <HomeListingsSkeleton />;
     }
 
     if (data) {
       return (
-        <HomeListings title="Premium Listings" listings={data.listings.result}/>
-      )
+        <HomeListings
+          title="Premium Listings"
+          listings={data.listings.result}
+        />
+      );
     }
 
     return null;
-  }
-
+  };
 
   return (
     <Content
@@ -73,8 +80,8 @@ export const Home = ({ history }: RouteComponentProps) => {
           locations
         </Paragraph>
         <Button className="ant-btn ant-btn-primary ant-btn-lg home__cta-section-button">
-          <Link to="/listings/united%20states">
-            Popular listings in the United States
+          <Link to="/listings/hue%20city">
+            Popular listings in the Hue City
           </Link>
         </Button>
       </div>
@@ -87,22 +94,26 @@ export const Home = ({ history }: RouteComponentProps) => {
         </Title>
         <Row gutter={12}>
           <Col xs={24} sm={12}>
-            <Link to="/listings/san%20fransisco">
+            <Link to="/listings/phuong%20phu%20nhuan">
               <div className="home__listings-image-cover">
                 <img
-                  src={hueImgae}
-                  alt="San Fransisco"
+                  src={
+                    "https://res.cloudinary.com/tttkirito/image/upload/v1702606876/APP_booking/zmist9a4brhhapfbnwa5.png"
+                  }
+                  alt="Phuong Phu Nhuan"
                   className="home__listings-img"
                 />
               </div>
             </Link>
           </Col>
           <Col xs={24} sm={12}>
-            <Link to="/listings/cancún">
+            <Link to="/listings/phuong%20xuan%20phu">
               <div className="home__listings-image-cover">
                 <img
-                  src={hueImgae}
-                  alt="San Fransisco"
+                  src={
+                    "https://res.cloudinary.com/tttkirito/image/upload/v1702606877/APP_booking/kt07azrx1cbelxbqqluz.png"
+                  }
+                  alt="Phuong Xuan Phu"
                   className="home__listings-img"
                 />
               </div>
